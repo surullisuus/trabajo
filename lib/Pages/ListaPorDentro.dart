@@ -22,11 +22,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Función para cargar los productos desde Firebase
   void _loadProducts() async {
-    FirebaseFirestore.instance.collection('Listas').snapshots().listen((snapshot) {
+    FirebaseFirestore.instance
+        .collection('Listas')
+        .snapshots()
+        .listen((snapshot) {
       setState(() {
-        _products = snapshot.docs.map((doc) => doc.data()).toList();
+        _products = snapshot.docs.map((doc) {
+          var data = doc.data();
+          data['id'] = doc.id;
+          return data;
+        }).toList();
       });
     });
+  }
+
+  // Función para marcar un producto como comprado
+  void _togglePurchased(String id, bool currentValue) async {
+    await FirebaseFirestore.instance.collection('Listas').doc(id).update({
+      'comprado': !currentValue,
+    });
+  }
+
+  // Función para eliminar un producto
+  void _deleteProduct(String id, bool comprado) async {
+    if (!comprado) {
+      await FirebaseFirestore.instance.collection('Listas').doc(id).delete();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('No puedes eliminar un producto marcado como comprado.'),
+      ));
+    }
   }
 
   @override
@@ -34,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        backgroundColor: Colors.purple, // Color del AppBar
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -41,25 +67,79 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
+                columnSpacing: 15.0, // Espaciado entre columnas
+                headingRowColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.purple.shade100),
                 columns: const <DataColumn>[
                   DataColumn(
                     label: Text(
                       'Producto',
-                      style: TextStyle(fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.purple, // Color del texto del encabezado
+                      ),
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Sitio',
-                      style: TextStyle(fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.purple, // Color del texto del encabezado
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Acciones',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.purple, // Color del texto del encabezado
+                      ),
                     ),
                   ),
                 ],
                 rows: _products.map((product) {
                   return DataRow(
                     cells: <DataCell>[
-                      DataCell(Text(product['producto'] ?? '')),
-                      DataCell(Text(product['sitio'] ?? '')),
+                      DataCell(
+                        GestureDetector(
+                          onDoubleTap: () => _togglePurchased(
+                              product['id'], product['comprado'] ?? false),
+                          child: Text(
+                            product['producto'] ?? '',
+                            style: TextStyle(
+                              color: Colors.purple, // Color del texto
+                              decoration: (product['comprado'] ?? false)
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        GestureDetector(
+                          onDoubleTap: () => _togglePurchased(
+                              product['id'], product['comprado'] ?? false),
+                          child: Text(
+                            product['sitio'] ?? '',
+                            style: TextStyle(
+                              color: Colors.purple, // Color del texto
+                              decoration: (product['comprado'] ?? false)
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        IconButton(
+                          onPressed: () => _deleteProduct(
+                              product['id'], product['comprado'] ?? false),
+                          icon: Icon(Icons.delete),
+                          color: Colors.red, // Color del icono
+                        ),
+                      ),
                     ],
                   );
                 }).toList(),
@@ -80,6 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         tooltip: 'Añadir',
         child: const Icon(Icons.add),
+        backgroundColor: Colors.purple, // Color del FAB
       ),
     );
   }
