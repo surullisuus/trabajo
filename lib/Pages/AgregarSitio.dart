@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'firebase_services.dart';
 
 class NewSitioForm extends StatefulWidget {
   @override
@@ -6,7 +10,8 @@ class NewSitioForm extends StatefulWidget {
 }
 
 class _NewSitioFormState extends State<NewSitioForm> {
-  final _siteNameController = TextEditingController();
+  final siteNameController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +21,7 @@ class _NewSitioFormState extends State<NewSitioForm> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextField(
-            controller: _siteNameController,
+            controller: siteNameController,
             decoration: InputDecoration(
               labelText: 'Aquí el nombre del sitio',
               border: OutlineInputBorder(),
@@ -28,13 +33,16 @@ class _NewSitioFormState extends State<NewSitioForm> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  // Acción al presionar el botón Guardar
+                  saveData(siteNameController.text);
+                  Navigator.pop(context);
+                  siteNameController.clear();
                 },
                 child: Text('Guardar'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Acción al presionar el botón Cancelar
+                  siteNameController.clear();
+                  Navigator.pop(context);
                 },
                 child: Text('Cancelar'),
                 style: ElevatedButton.styleFrom(
