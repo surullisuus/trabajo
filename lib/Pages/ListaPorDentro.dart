@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'AñadirProducto.dart';
 
@@ -11,6 +12,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<Map<String, dynamic>> _products = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  // Función para cargar los productos desde Firebase
+  void _loadProducts() async {
+    FirebaseFirestore.instance.collection('Listas').snapshots().listen((snapshot) {
+      setState(() {
+        _products = snapshot.docs.map((doc) => doc.data()).toList();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,92 +41,28 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               width: MediaQuery.of(context).size.width,
               child: DataTable(
-                headingRowColor: MaterialStateProperty.all(Colors.purple[100]), // Color del encabezado
-                dataRowColor: MaterialStateProperty.all(Colors.purple[50]), // Color de las filas
-                columns: <DataColumn>[
+                columns: const <DataColumn>[
                   DataColumn(
                     label: Text(
                       'Producto',
-                      style: TextStyle(
-                        fontSize: 18, // Tamaño de letra
-                        fontWeight: FontWeight.bold, // Negrita
-                        color: Colors.purple, // Color del texto del encabezado
-                      ),
+                      style: TextStyle(fontStyle: FontStyle.italic),
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       'Sitio',
-                      style: TextStyle(
-                        fontSize: 18, // Tamaño de letra
-                        fontWeight: FontWeight.bold, // Negrita
-                        color: Colors.purple, // Color del texto del encabezado
-                      ),
+                      style: TextStyle(fontStyle: FontStyle.italic),
                     ),
                   ),
                 ],
-                rows: <DataRow>[
-                  DataRow(
+                rows: _products.map((product) {
+                  return DataRow(
                     cells: <DataCell>[
-                      DataCell(Text(
-                        'Arroz',
-                        style: TextStyle(
-                          fontSize: 16, // Tamaño de letra
-                          fontWeight: FontWeight.normal, // Peso normal
-                          color: Colors.purple[900], // Color del texto de la celda
-                        ),
-                      )),
-                      DataCell(Text(
-                        'ARA',
-                        style: TextStyle(
-                          fontSize: 16, // Tamaño de letra
-                          fontWeight: FontWeight.normal, // Peso normal
-                          color: Colors.purple[900], // Color del texto de la celda
-                        ),
-                      )),
+                      DataCell(Text(product['producto'] ?? '')),
+                      DataCell(Text(product['sitio'] ?? '')),
                     ],
-                  ),
-                  DataRow(
-                    cells: <DataCell>[
-                      DataCell(Text(
-                        'Jabón',
-                        style: TextStyle(
-                          fontSize: 16, // Tamaño de letra
-                          fontWeight: FontWeight.normal, // Peso normal
-                          color: Colors.purple[900], // Color del texto de la celda
-                        ),
-                      )),
-                      DataCell(Text(
-                        'D1',
-                        style: TextStyle(
-                          fontSize: 16, // Tamaño de letra
-                          fontWeight: FontWeight.normal, // Peso normal
-                          color: Colors.purple[900], // Color del texto de la celda
-                        ),
-                      )),
-                    ],
-                  ),
-                  DataRow(
-                    cells: <DataCell>[
-                      DataCell(Text(
-                        'Tomate',
-                        style: TextStyle(
-                          fontSize: 16, // Tamaño de letra
-                          fontWeight: FontWeight.normal, // Peso normal
-                          color: Colors.purple[900], // Color del texto de la celda
-                        ),
-                      )),
-                      DataCell(Text(
-                        'Placita campesina',
-                        style: TextStyle(
-                          fontSize: 16, // Tamaño de letra
-                          fontWeight: FontWeight.normal, // Peso normal
-                          color: Colors.purple[900], // Color del texto de la celda
-                        ),
-                      )),
-                    ],
-                  ),
-                ],
+                  );
+                }).toList(),
               ),
             ),
           ],

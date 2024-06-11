@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:trabajo/Pages/AgregarSitio.dart';
+
+import 'firebase_services.dart';
 
 class NewProductForm extends StatefulWidget {
   @override
@@ -7,9 +10,51 @@ class NewProductForm extends StatefulWidget {
 }
 
 class _NewProductFormState extends State<NewProductForm> {
-  final _productNameController = TextEditingController();
-  String? _selectedSite;
-  final List<String> _sites = ['ARA', 'D1', 'Placita campesina'];
+  final selectedProductoController= TextEditingController();
+  final _textController = TextEditingController();
+  String? _selectedValue;
+  List<String> _sites = [];
+  @override
+  void initState() {
+    super.initState();
+    _loadSites(); // Llama a la función para cargar los sitios al iniciar el estado
+  }
+
+  // Función para cargar los sitios desde Firebase
+  void _loadSites() async {
+    List<String> sitios = await readData();
+    setState(() {
+      _sites = sitios;
+    });
+  }
+
+  void _saveSelectedValue() async {
+    if (_selectedValue == null || _textController.text.isEmpty) {
+      // Opcional: Muestra un mensaje de error si faltan valores
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Please select an item and enter text'),
+      ));
+      return;
+    }
+
+    String textFieldValue = _textController.text;
+
+    await FirebaseFirestore.instance.collection('Listas').add({
+      'producto': _selectedValue,
+      'sitio': textFieldValue,
+    });
+
+    // Opcional: Limpia los campos después de guardar
+    setState(() {
+      _selectedValue = null;
+      _textController.clear();
+    });
+
+    // Opcional: Muestra un mensaje de éxito
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Values saved successfully'),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +64,7 @@ class _NewProductFormState extends State<NewProductForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
-            controller: _productNameController,
+            controller: _textController ,
             decoration: InputDecoration(
               labelText: 'Ingrese el nombre del producto',
               border: OutlineInputBorder(),
@@ -30,17 +75,19 @@ class _NewProductFormState extends State<NewProductForm> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: _selectedSite,
+                  menuMaxHeight: 150,
+                  value: _selectedValue,
                   hint: Text('Seleccionar sitio...'),
                   onChanged: (String? newValue) {
                     setState(() {
-                      _selectedSite = newValue;
+                      _selectedValue = newValue;
                     });
                   },
                   items: _sites.map((String site) {
                     return DropdownMenuItem<String>(
                       value: site,
                       child: Text(site),
+
                     );
                   }).toList(),
                   decoration: InputDecoration(
@@ -68,9 +115,7 @@ class _NewProductFormState extends State<NewProductForm> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  // Acción al presionar el botón Guardar
-                },
+                onPressed: _saveSelectedValue,
                 child: Text('Guardar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
