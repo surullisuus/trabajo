@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "628873519207",
+    "project_id": "trabajo-final2-d855d",
+    "storage_bucket": "trabajo-final2-d855d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628873519207:android:f66ccc148b01ff852cb4c2",
+        "android_client_info": {
+          "package_name": "com.example.trabajo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9zn39u1JP5k3-qwt1qFXveVd9Jr_exPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
