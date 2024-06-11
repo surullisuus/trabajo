@@ -21,7 +21,7 @@ class _NewProductFormState extends State<NewProductForm> {
           TextField(
             controller: _productNameController,
             decoration: InputDecoration(
-              labelText: 'Aquí el nombre del producto',
+              labelText: 'Ingrese el nombre del producto',
               border: OutlineInputBorder(),
             ),
           ),
@@ -51,11 +51,12 @@ class _NewProductFormState extends State<NewProductForm> {
               SizedBox(width: 8.0),
               ElevatedButton(
                 onPressed: () {
-                  showModalBottomSheet(context: context, builder: (context)=>
-                      Scaffold(
-                        appBar: AppBar(title: Text('Nuevo Producto')),
-                        body: NewSitioForm(),
-                      )
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) => Scaffold(
+                      appBar: AppBar(title: Text('Nuevo Sitio')),
+                      body: NewSitioForm(),
+                    ),
                   );
                 },
                 child: Text('+'),
@@ -71,14 +72,18 @@ class _NewProductFormState extends State<NewProductForm> {
                   // Acción al presionar el botón Guardar
                 },
                 child: Text('Guardar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Acción al presionar el botón Cancelar
+                Navigator.pop(context);
                 },
                 child: Text('Cancelar'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
+                  backgroundColor: Colors.white,
                 ),
               ),
             ],
