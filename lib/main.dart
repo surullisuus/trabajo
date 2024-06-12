@@ -75,22 +75,19 @@ class _ListaScreenState extends State<ListaScreen> {
 
   // Función para mostrar el formulario de duplicar lista
 void mostrarFormularioDuplicarLista() async {
- 
   String? nuevoNombreLista = await showDialog<String>(
     context: context,
     builder: (BuildContext context) {
       return DuplicarListaForm(
-        listaActual: listas.isNotEmpty ? listas[0] : '', // Puedes ajustar esto según la lógica que necesites
-        idListaSeleccionada: idListas.isNotEmpty ? idListas[0] : null, // Pasar el ID de la lista seleccionada
+        listaActual: listas.isNotEmpty ? listas[0] : '',
+        idListaSeleccionada: idListas.isNotEmpty ? idListas[0] : null,
       );
     },
   );
 
-  // Aquí puedes manejar el resultado si es necesario
   if (nuevoNombreLista != null) {
-    // Aquí podrías agregar la nueva lista con el nombre recibido
     setState(() {
-      listas.add(nuevoNombreLista);
+      listas.add(nuevoNombreLista); // Agregar la nueva lista
       idListas.add("nuevoID"); // Deberías ajustar cómo generas el nuevo ID
     });
   }

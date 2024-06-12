@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DuplicarListaForm extends StatefulWidget {
   final String listaActual;
-  final String? idListaSeleccionada; // Nuevo campo para el ID de la lista seleccionada
+  final String? idListaSeleccionada;
 
   DuplicarListaForm({required this.listaActual, this.idListaSeleccionada});
 
@@ -15,7 +15,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
   String nuevoNombreLista = '';
   String? listaSeleccionada;
   List<String> listasFromDatabase = [];
-  bool isButtonEnabled = false; // Variable para habilitar/deshabilitar el botón de duplicar
+  bool isButtonEnabled = false;
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
   void cargarListasDesdeBaseDeDatos() async {
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('Listas').get(); // Cambiar a 'Listas'
+          await FirebaseFirestore.instance.collection('Listas').get();
       List<String> nombresListas = [];
       querySnapshot.docs.forEach((doc) {
         nombresListas.add(doc['nombre']);
@@ -36,39 +36,28 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
       });
     } catch (e) {
       print('Error al cargar las listas desde la base de datos: $e');
-      // Manejar el error según sea necesario
     }
   }
 
   void duplicarLista(String? listaSeleccionada, String nuevoNombreLista) async {
     try {
       if (listaSeleccionada != null) {
-        // Generar un ID único para la nueva lista
-        String nuevaListaId = FirebaseFirestore.instance.collection('Listas').doc().id; // Cambiar a 'Listas'
-
-        // Obtener la fecha y hora actual del sistema
+        String nuevaListaId = FirebaseFirestore.instance.collection('Listas').doc().id;
         Timestamp fechaRegistro = Timestamp.now();
 
-        // Crear un nuevo documento para la nueva lista con el ID generado y la fecha de registro
-        await FirebaseFirestore.instance.collection('Listas').doc(nuevaListaId).set({ // Cambiar a 'Listas'
+        await FirebaseFirestore.instance.collection('Listas').doc(nuevaListaId).set({
           'id': nuevaListaId,
           'nombre': nuevoNombreLista,
-          'fechaRegistro': fechaRegistro, // Agregar el campo FechaRegistro
-          // Otros campos necesarios para tu aplicación
+          'fechaRegistro': fechaRegistro,
         });
 
-        // Opcional: Puedes imprimir un mensaje de éxito
-        print('Nueva lista creada en Firestore: $nuevoNombreLista con ID: $nuevaListaId');
-
-        // Opcional: Puedes cerrar el diálogo y pasar el nombre de la lista creada
-        Navigator.pop(context, nuevoNombreLista);
+        Navigator.pop(context, nuevoNombreLista); // Devolver el nombre de la lista creada
       } else {
-        // Si listaSeleccionada es null, significa que se está creando una lista completamente nueva
-        // Aquí puedes implementar la lógica para crear una lista nueva sin duplicar
+        // Lógica para crear una lista nueva sin duplicar
+        Navigator.pop(context, nuevoNombreLista); // Devolver el nombre de la lista creada
       }
     } catch (e) {
       print('Error al crear la nueva lista: $e');
-      // Manejar el error según sea necesario
     }
   }
 
@@ -78,7 +67,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
       title: Text('Duplicar Lista'),
       content: SingleChildScrollView(
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.8, // Ajustar el ancho del contenido
+          width: MediaQuery.of(context).size.width * 0.8,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -87,14 +76,13 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 onChanged: (String? newValue) {
                   setState(() {
                     listaSeleccionada = newValue;
-                    // Verificar si la selección es válida para habilitar el botón de duplicar
-                    isButtonEnabled = true; // Siempre habilitar el botón de duplicar cuando hay un cambio en el dropdown
+                    isButtonEnabled = true;
                   });
                 },
-                items: [...listasFromDatabase, null].map((String? lista) {
+                items: listasFromDatabase.map((String lista) {
                   return DropdownMenuItem<String>(
                     value: lista,
-                    child: Text(lista ?? 'Crear nueva lista'),
+                    child: Text(lista),
                   );
                 }).toList(),
                 decoration: InputDecoration(
@@ -107,7 +95,6 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 onChanged: (value) {
                   setState(() {
                     nuevoNombreLista = value;
-                    // Verificar si la entrada del nombre de lista es válida para habilitar el botón de duplicar
                     isButtonEnabled = listaSeleccionada != null || nuevoNombreLista.isNotEmpty;
                   });
                 },
@@ -130,9 +117,9 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
         ElevatedButton(
           onPressed: isButtonEnabled
               ? () {
-                  duplicarLista(widget.idListaSeleccionada, nuevoNombreLista); // Pasa el ID de la lista seleccionada
+                  duplicarLista(widget.idListaSeleccionada, nuevoNombreLista);
                 }
-              : null, // Deshabilitar el botón si no se cumple la condición
+              : null,
           child: Text('Duplicar'),
         ),
       ],
