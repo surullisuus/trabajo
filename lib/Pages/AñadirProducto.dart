@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:trabajo/Pages/AgregarSitio.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AgregarSitio.dart';
 import 'firebase_services.dart';
+
 
 class NewProductForm extends StatefulWidget {
   final String idLista;
@@ -24,7 +24,6 @@ class _NewProductFormState extends State<NewProductForm> {
     _loadSites();
   }
 
-  // Función para cargar los sitios desde Firebase
   void _loadSites() async {
     List<String> sitios = await readData();
     setState(() {
@@ -32,9 +31,14 @@ class _NewProductFormState extends State<NewProductForm> {
     });
   }
 
+  void _addSiteToList(String newSiteName) {
+    setState(() {
+      _sites.add(newSiteName);
+    });
+  }
+
   void _saveProduct() async {
     if (_productController.text.isEmpty || _selectedSite == null) {
-      // Opcional: Muestra un mensaje de error si faltan valores
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Por favor, ingrese un nombre de producto y seleccione un sitio'),
       ));
@@ -50,18 +54,15 @@ class _NewProductFormState extends State<NewProductForm> {
       'sitio': siteName,
     });
 
-    // Opcional: Limpia los campos después de guardar
     setState(() {
       _productController.clear();
       _selectedSite = null;
     });
 
-    // Opcional: Muestra un mensaje de éxito
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Producto guardado exitosamente'),
     ));
 
-    // Cierra el modal
     Navigator.pop(context);
   }
 
@@ -110,7 +111,9 @@ class _NewProductFormState extends State<NewProductForm> {
                     context: context,
                     builder: (context) => Scaffold(
                       appBar: AppBar(title: Text('Nuevo Sitio')),
-                      body: NewSitioForm(),
+                      body: NewSitioForm(
+                        onSiteAdded: _addSiteToList,
+                      ),
                     ),
                   );
                 },

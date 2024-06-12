@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'firebase_services.dart';
+import 'firebase_services.dart'; // Cambiar el import según tu estructura de archivos
 
 class NewSitioForm extends StatefulWidget {
+  final Function(String) onSiteAdded;
+
+  NewSitioForm({required this.onSiteAdded});
+
   @override
   _NewSitioFormState createState() => _NewSitioFormState();
 }
@@ -29,13 +33,16 @@ class _NewSitioFormState extends State<NewSitioForm> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  saveData(siteNameController.text);
+                  String newSiteName = siteNameController.text;
+                  saveData(newSiteName);
+                  widget.onSiteAdded(newSiteName);
                   Navigator.pop(context);
                   siteNameController.clear();
                 },
                 child: Text('Guardar'),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.purple, // Color del texto
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.purple,
                 ),
               ),
               ElevatedButton(
@@ -45,7 +52,7 @@ class _NewSitioFormState extends State<NewSitioForm> {
                 },
                 child: Text('Cancelar'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // Color del texto
+                  backgroundColor: Colors.white,
                 ),
               ),
             ],
