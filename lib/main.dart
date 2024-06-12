@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'Pages/ListaPorDentro.dart'; 
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'Pages/DuplicarLista.dart'; // Asegúrate de importar correctamente el archivo donde está definido DuplicarListaForm
+import 'Pages/ListaPorDentro.dart';
+import 'firebase_options.dart'; // Asegúrate de importar correctamente tus opciones de Firebase
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Añadido para asegurar la inicialización correcta de Firebase
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -31,15 +33,35 @@ class ListaScreen extends StatefulWidget {
 }
 
 class _ListaScreenState extends State<ListaScreen> {
-  List<String> listas = ['Lista 1', 'Lista 2'];
-  List<String> idListas = ['idLista1', 'idLista2']; // Añadido para almacenar los IDs de las listas
+  List<String> listas = [];
+  List<String> idListas = []; // Añadido para almacenar los IDs de las listas
   int? hoveredIndex;
 
-  void duplicarLista() {
-    setState(() {
-      listas.addAll(listas);
-      idListas.addAll(idListas); // Duplicar también los IDs de las listas
-    });
+  @override
+  void initState() {
+    super.initState();
+    cargarListasDesdeFirestore();
+  }
+
+  void cargarListasDesdeFirestore() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Listas').get();
+      List<String> nombresListas = [];
+      List<String> idsListas = [];
+
+      querySnapshot.docs.forEach((doc) {
+        nombresListas.add(doc['nombre']);
+        idsListas.add(doc.id); // Agregar el ID del documento a la lista de IDs
+      });
+
+      setState(() {
+        listas = nombresListas;
+        idListas = idsListas;
+      });
+    } catch (e) {
+      print('Error al cargar las listas desde Firestore: $e');
+      // Manejar el error según sea necesario
+    }
   }
 
   void navigateToList(BuildContext context, String listName, String idLista) {
@@ -50,6 +72,29 @@ class _ListaScreenState extends State<ListaScreen> {
       ),
     );
   }
+
+  // Función para mostrar el formulario de duplicar lista
+void mostrarFormularioDuplicarLista() async {
+ 
+  String? nuevoNombreLista = await showDialog<String>(
+    context: context,
+    builder: (BuildContext context) {
+      return DuplicarListaForm(
+        listaActual: listas.isNotEmpty ? listas[0] : '', // Puedes ajustar esto según la lógica que necesites
+        idListaSeleccionada: idListas.isNotEmpty ? idListas[0] : null, // Pasar el ID de la lista seleccionada
+      );
+    },
+  );
+
+  // Aquí puedes manejar el resultado si es necesario
+  if (nuevoNombreLista != null) {
+    // Aquí podrías agregar la nueva lista con el nombre recibido
+    setState(() {
+      listas.add(nuevoNombreLista);
+      idListas.add("nuevoID"); // Deberías ajustar cómo generas el nuevo ID
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +161,7 @@ class _ListaScreenState extends State<ListaScreen> {
               ),
             ),
             ElevatedButton(
-              onPressed: duplicarLista,
+              onPressed: mostrarFormularioDuplicarLista, // Llama a la función que muestra el formulario
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.purple, // Text color
