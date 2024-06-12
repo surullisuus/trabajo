@@ -4,8 +4,9 @@ import 'firebase_services.dart';
 
 class EditProductForm extends StatefulWidget {
   final Map<String, dynamic> productToEdit;
+  final String idLista; // Añadido el parámetro idLista
 
-  const EditProductForm({Key? key, required this.productToEdit}) : super(key: key);
+  const EditProductForm({Key? key, required this.productToEdit, required this.idLista}) : super(key: key);
 
   @override
   _EditProductFormState createState() => _EditProductFormState();
@@ -38,7 +39,12 @@ class _EditProductFormState extends State<EditProductForm> {
     // Verifica si el nombre del producto y el sitio están seleccionados
     if (_productController.text.isNotEmpty && _selectedSite != null) {
       // Actualiza los datos en Firestore
-      await FirebaseFirestore.instance.collection('Listas').doc(widget.productToEdit['id']).update({
+      await FirebaseFirestore.instance
+          .collection('Listas')
+          .doc(widget.idLista) // Usa idLista para especificar la lista
+          .collection('Productos')
+          .doc(widget.productToEdit['id'])
+          .update({
         'producto': _productController.text,
         'sitio': _selectedSite,
       });

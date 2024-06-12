@@ -5,6 +5,10 @@ import 'package:trabajo/Pages/AgregarSitio.dart';
 import 'firebase_services.dart';
 
 class NewProductForm extends StatefulWidget {
+  final String idLista;
+
+  NewProductForm({required this.idLista});
+
   @override
   _NewProductFormState createState() => _NewProductFormState();
 }
@@ -39,8 +43,9 @@ class _NewProductFormState extends State<NewProductForm> {
 
     String productName = _productController.text;
     String siteName = _selectedSite!;
+    String idLista = widget.idLista;
 
-    await FirebaseFirestore.instance.collection('Listas').add({
+    await FirebaseFirestore.instance.collection('Listas').doc(idLista).collection('Productos').add({
       'producto': productName,
       'sitio': siteName,
     });

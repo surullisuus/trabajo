@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'AñadirProducto.dart';
 import 'EditarProducto.dart';
 
-
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.idLista});
 
   final String title;
+  final String idLista; // Nuevo parámetro
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -26,6 +26,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void _loadProducts() async {
     FirebaseFirestore.instance
         .collection('Listas')
+        .doc(widget.idLista) // Filtrar por idLista
+        .collection('Productos')
         .snapshots()
         .listen((snapshot) {
       setState(() {
@@ -40,7 +42,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Función para marcar un producto como comprado
   void _togglePurchased(String id, bool currentValue) async {
-    await FirebaseFirestore.instance.collection('Listas').doc(id).update({
+    await FirebaseFirestore.instance
+        .collection('Listas')
+        .doc(widget.idLista)
+        .collection('Productos')
+        .doc(id)
+        .update({
       'comprado': !currentValue,
     });
   }
@@ -48,7 +55,12 @@ class _MyHomePageState extends State<MyHomePage> {
   // Función para eliminar un producto
   void _deleteProduct(String id, bool comprado) async {
     if (!comprado) {
-      await FirebaseFirestore.instance.collection('Listas').doc(id).delete();
+      await FirebaseFirestore.instance
+          .collection('Listas')
+          .doc(widget.idLista)
+          .collection('Productos')
+          .doc(id)
+          .delete();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('No puedes eliminar un producto marcado como comprado.'),
@@ -62,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) => Scaffold(
         appBar: AppBar(title: Text('Editar Producto')),
-        body: EditProductForm(productToEdit: product),
+        body: EditProductForm(productToEdit: product, idLista: widget.idLista),
       ),
     );
   }
@@ -149,7 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () => _editProduct(product), // Abrir formulario de edición
+                              onPressed: () =>
+                                  _editProduct(product), // Abrir formulario de edición
                               icon: Icon(Icons.edit),
                               color: Colors.blue, // Color del icono
                             ),
@@ -177,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
             context: context,
             builder: (context) => Scaffold(
               appBar: AppBar(title: Text('Nuevo Producto')),
-              body: NewProductForm(),
+              body: NewProductForm(idLista: widget.idLista), // Pasar idLista aquí
             ),
           );
         },

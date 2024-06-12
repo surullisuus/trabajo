@@ -3,8 +3,8 @@ import 'Pages/ListaPorDentro.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Añadido para asegurar la inicialización correcta de Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -32,19 +32,21 @@ class ListaScreen extends StatefulWidget {
 
 class _ListaScreenState extends State<ListaScreen> {
   List<String> listas = ['Lista 1', 'Lista 2'];
+  List<String> idListas = ['idLista1', 'idLista2']; // Añadido para almacenar los IDs de las listas
   int? hoveredIndex;
 
   void duplicarLista() {
     setState(() {
       listas.addAll(listas);
+      idListas.addAll(idListas); // Duplicar también los IDs de las listas
     });
   }
 
-  void navigateToList(BuildContext context, String listName) {
+  void navigateToList(BuildContext context, String listName, String idLista) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MyHomePage(title: listName), // Navega a MyHomePage con el título adecuado
+        builder: (context) => MyHomePage(title: listName, idLista: idLista), // Navega a MyHomePage con el título y idLista
       ),
     );
   }
@@ -75,7 +77,7 @@ class _ListaScreenState extends State<ListaScreen> {
                       });
                     },
                     child: GestureDetector(
-                      onTap: () => navigateToList(context, listas[index]),
+                      onTap: () => navigateToList(context, listas[index], idListas[index]), // Pasar idLista al navegar
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 8.0),
                         padding: const EdgeInsets.all(16.0),
@@ -116,7 +118,8 @@ class _ListaScreenState extends State<ListaScreen> {
             ElevatedButton(
               onPressed: duplicarLista,
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.purple, // Text color
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.purple, // Text color
                 padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
