@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'Pages/ListaPorDentro.dart'; // Asegúrate de importar correctamente 'ListaPorDentro.dart'
-
-
+import 'Pages/ListaPorDentro.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 void main() async {
   await Firebase.initializeApp(

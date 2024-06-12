@@ -11,7 +11,6 @@ class NewProductForm extends StatefulWidget {
 
 class _NewProductFormState extends State<NewProductForm> {
   final _productController = TextEditingController();
-  final _siteController = TextEditingController();
   String? _selectedSite;
   List<String> _sites = [];
 
@@ -32,7 +31,7 @@ class _NewProductFormState extends State<NewProductForm> {
   void _saveProduct() async {
     if (_productController.text.isEmpty || _selectedSite == null) {
       // Opcional: Muestra un mensaje de error si faltan valores
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Por favor, ingrese un nombre de producto y seleccione un sitio'),
       ));
       return;
@@ -53,7 +52,7 @@ class _NewProductFormState extends State<NewProductForm> {
     });
 
     // Opcional: Muestra un mensaje de éxito
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Producto guardado exitosamente'),
     ));
 
@@ -70,12 +69,12 @@ class _NewProductFormState extends State<NewProductForm> {
         children: [
           TextField(
             controller: _productController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Ingrese el nombre del producto',
               border: OutlineInputBorder(),
             ),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           Row(
             children: [
               Expanded(
@@ -111,6 +110,10 @@ class _NewProductFormState extends State<NewProductForm> {
                   );
                 },
                 child: Text('+'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ],
           ),

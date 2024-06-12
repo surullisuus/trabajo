@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'firebase_services.dart';
 
 class NewSitioForm extends StatefulWidget {
@@ -11,7 +8,6 @@ class NewSitioForm extends StatefulWidget {
 
 class _NewSitioFormState extends State<NewSitioForm> {
   final siteNameController = TextEditingController();
-
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +34,9 @@ class _NewSitioFormState extends State<NewSitioForm> {
                   siteNameController.clear();
                 },
                 child: Text('Guardar'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.purple, // Color del texto
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -46,7 +45,7 @@ class _NewSitioFormState extends State<NewSitioForm> {
                 },
                 child: Text('Cancelar'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
+                  backgroundColor: Colors.white, // Color del texto
                 ),
               ),
             ],
