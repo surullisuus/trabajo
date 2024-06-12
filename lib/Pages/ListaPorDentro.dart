@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'AñadirProducto.dart';
+import 'EditarProducto.dart';
+import 'firebase_services.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -52,6 +54,17 @@ class _MyHomePageState extends State<MyHomePage> {
         content: Text('No puedes eliminar un producto marcado como comprado.'),
       ));
     }
+  }
+
+  // Función para abrir el formulario de edición de un producto
+  void _editProduct(Map<String, dynamic> product) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Scaffold(
+        appBar: AppBar(title: Text('Editar Producto')),
+        body: EditProductForm(productToEdit: product),
+      ),
+    );
   }
 
   @override
@@ -133,11 +146,21 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       DataCell(
-                        IconButton(
-                          onPressed: () => _deleteProduct(
-                              product['id'], product['comprado'] ?? false),
-                          icon: Icon(Icons.delete),
-                          color: Colors.red, // Color del icono
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => _editProduct(product), // Abrir formulario de edición
+                              icon: Icon(Icons.edit),
+                              color: Colors.blue, // Color del icono
+                            ),
+                            if (!(product['comprado'] ?? false))
+                              IconButton(
+                                onPressed: () => _deleteProduct(
+                                    product['id'], product['comprado'] ?? false),
+                                icon: Icon(Icons.delete),
+                                color: Colors.red, // Color del icono
+                              ),
+                          ],
                         ),
                       ),
                     ],
