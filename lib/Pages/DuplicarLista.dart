@@ -41,7 +41,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
 
   void duplicarLista(String? listaSeleccionada, String nuevoNombreLista) async {
     try {
-      if (listaSeleccionada != null) {
+      if (nuevoNombreLista.isNotEmpty) {
         String nuevaListaId = FirebaseFirestore.instance.collection('Listas').doc().id;
         Timestamp fechaRegistro = Timestamp.now();
 
@@ -53,8 +53,9 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
 
         Navigator.pop(context, nuevoNombreLista); // Devolver el nombre de la lista creada
       } else {
-        // Lógica para crear una lista nueva sin duplicar
-        Navigator.pop(context, nuevoNombreLista); // Devolver el nombre de la lista creada
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Por favor, ingrese el nombre de la nueva lista'),
+        ));
       }
     } catch (e) {
       print('Error al crear la nueva lista: $e');
@@ -76,7 +77,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 onChanged: (String? newValue) {
                   setState(() {
                     listaSeleccionada = newValue;
-                    isButtonEnabled = true;
+                    isButtonEnabled = nuevoNombreLista.isNotEmpty;
                   });
                 },
                 items: listasFromDatabase.map((String lista) {
@@ -95,7 +96,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 onChanged: (value) {
                   setState(() {
                     nuevoNombreLista = value;
-                    isButtonEnabled = listaSeleccionada != null || nuevoNombreLista.isNotEmpty;
+                    isButtonEnabled = nuevoNombreLista.isNotEmpty;
                   });
                 },
                 decoration: InputDecoration(
@@ -121,6 +122,10 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 }
               : null,
           child: Text('Duplicar'),
+           style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
+                      ),
         ),
       ],
     );
