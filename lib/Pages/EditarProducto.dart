@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_services.dart';
 
 class EditProductForm extends StatefulWidget {
@@ -17,6 +17,7 @@ class _EditProductFormState extends State<EditProductForm> {
   String? _selectedSite;
   List<String> _sites = [];
   bool _loading = true;
+  bool _changesMade = false; // Bandera para controlar cambios realizados
 
   @override
   void initState() {
@@ -35,7 +36,23 @@ class _EditProductFormState extends State<EditProductForm> {
     });
   }
 
+  // Función para validar cambios antes de guardar
+  bool _validateChanges() {
+    if (_productController.text != widget.productToEdit['producto'] ||
+        _selectedSite != widget.productToEdit['sitio']) {
+      return true;
+    }
+    return false;
+  }
+
   void _saveProduct() async {
+    if (!_validateChanges()) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('No se han realizado cambios'),
+      ));
+      return;
+    }
+
     // Verifica si el nombre del producto y el sitio están seleccionados
     if (_productController.text.isNotEmpty && _selectedSite != null) {
       // Actualiza los datos en Firestore
@@ -75,6 +92,11 @@ class _EditProductFormState extends State<EditProductForm> {
               children: [
                 TextField(
                   controller: _productController,
+                  onChanged: (value) {
+                    setState(() {
+                      _changesMade = true; // Marcar cambios al modificar el nombre del producto
+                    });
+                  },
                   decoration: InputDecoration(
                     labelText: 'Ingrese el nombre del producto',
                     border: OutlineInputBorder(),
@@ -84,10 +106,10 @@ class _EditProductFormState extends State<EditProductForm> {
                 DropdownButtonFormField<String>(
                   menuMaxHeight: 150,
                   value: _selectedSite,
-                  hint: Text('Seleccionar sitio...'),
                   onChanged: (String? newValue) {
                     setState(() {
                       _selectedSite = newValue;
+                      _changesMade = true; // Marcar cambios al modificar el sitio seleccionado
                     });
                   },
                   items: _sites.map((String site) {
