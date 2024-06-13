@@ -13,6 +13,7 @@ class EditProductForm extends StatefulWidget {
 }
 
 class _EditProductFormState extends State<EditProductForm> {
+  final _formKey = GlobalKey<FormState>();
   final _productController = TextEditingController();
   String? _selectedSite;
   List<String> _sites = [];
@@ -45,6 +46,16 @@ class _EditProductFormState extends State<EditProductForm> {
     return false;
   }
 
+  // Validador personalizado para el nombre del producto
+  String? _productNameValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, ingrese el nombre del producto';
+    } else if (value.length < 3) {
+      return 'El nombre del producto debe tener al menos 3 caracteres';
+    }
+    return null;
+  }
+
   void _saveProduct() async {
     if (!_validateChanges()) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -54,7 +65,7 @@ class _EditProductFormState extends State<EditProductForm> {
     }
 
     // Verifica si el nombre del producto y el sitio están seleccionados
-    if (_productController.text.isNotEmpty && _selectedSite != null) {
+    if (_formKey.currentState!.validate() && _selectedSite != null) {
       // Actualiza los datos en Firestore
       await FirebaseFirestore.instance
           .collection('Listas')
@@ -73,11 +84,6 @@ class _EditProductFormState extends State<EditProductForm> {
 
       // Cierra el modal de edición
       Navigator.pop(context);
-    } else {
-      // Si el nombre del producto o el sitio no están seleccionados, muestra un mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Por favor, ingrese un nombre de producto y seleccione un sitio'),
-      ));
     }
   }
 
@@ -87,65 +93,70 @@ class _EditProductFormState extends State<EditProductForm> {
       padding: const EdgeInsets.all(16.0),
       child: _loading
           ? CircularProgressIndicator() // Mostrar indicador de carga mientras se cargan los sitios
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _productController,
-                  onChanged: (value) {
-                    setState(() {
-                      _changesMade = true; // Marcar cambios al modificar el nombre del producto
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Ingrese el nombre del producto',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                DropdownButtonFormField<String>(
-                  menuMaxHeight: 150,
-                  value: _selectedSite,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedSite = newValue;
-                      _changesMade = true; // Marcar cambios al modificar el sitio seleccionado
-                    });
-                  },
-                  items: _sites.map((String site) {
-                    return DropdownMenuItem<String>(
-                      value: site,
-                      child: Text(site),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _saveProduct,
-                      child: Text('Guardar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        foregroundColor: Colors.white,
-                      ),
+          : Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _productController,
+                    validator: _productNameValidator,
+                    onChanged: (value) {
+                      setState(() {
+                        _changesMade = true; // Marcar cambios al modificar el nombre del producto
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Ingrese el nombre del producto',
+                      border: OutlineInputBorder(),
+                      errorStyle: TextStyle(color: Colors.red), // Estilo del mensaje de error
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('Cancelar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                      ),
+                  ),
+                  SizedBox(height: 16.0),
+                  DropdownButtonFormField<String>(
+                    menuMaxHeight: 150,
+                    value: _selectedSite,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedSite = newValue;
+                        _changesMade = true; // Marcar cambios al modificar el sitio seleccionado
+                      });
+                    },
+                    items: _sites.map((String site) {
+                      return DropdownMenuItem<String>(
+                        value: site,
+                        child: Text(site),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _saveProduct,
+                        child: Text('Guardar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancelar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
     );
   }

@@ -41,7 +41,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
 
   void duplicarLista(String? listaSeleccionada, String nuevoNombreLista) async {
     try {
-      if (nuevoNombreLista.isNotEmpty) {
+      if (nuevoNombreLista.isNotEmpty && nuevoNombreLista.length >= 5) {
         String nuevaListaId = FirebaseFirestore.instance.collection('Listas').doc().id;
         Timestamp fechaRegistro = Timestamp.now();
 
@@ -62,6 +62,15 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
     }
   }
 
+  String? validarNombreLista(String value) {
+    if (value.isEmpty) {
+      return 'Por favor, ingrese el nombre de la lista';
+    } else if (value.length < 5) {
+      return 'El nombre debe tener al menos 5 caracteres';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -77,7 +86,7 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 onChanged: (String? newValue) {
                   setState(() {
                     listaSeleccionada = newValue;
-                    isButtonEnabled = nuevoNombreLista.isNotEmpty;
+                    isButtonEnabled = nuevoNombreLista.length >= 5;
                   });
                 },
                 items: listasFromDatabase.map((String lista) {
@@ -96,12 +105,15 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 onChanged: (value) {
                   setState(() {
                     nuevoNombreLista = value;
-                    isButtonEnabled = nuevoNombreLista.isNotEmpty;
+                    isButtonEnabled = value.length >= 5;
                   });
                 },
                 decoration: InputDecoration(
                   labelText: 'Nombre de la nueva lista *',
                   border: OutlineInputBorder(),
+                  errorText: nuevoNombreLista.isNotEmpty && nuevoNombreLista.length < 5
+                      ? 'El nombre debe tener al menos 5 caracteres'
+                      : null,
                 ),
               ),
             ],
@@ -122,10 +134,10 @@ class _DuplicarListaFormState extends State<DuplicarListaForm> {
                 }
               : null,
           child: Text('Duplicar'),
-           style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        foregroundColor: Colors.white,
-                      ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.purple,
+            foregroundColor: Colors.white,
+          ),
         ),
       ],
     );
