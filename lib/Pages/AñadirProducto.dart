@@ -73,6 +73,8 @@ class _NewProductFormState extends State<NewProductForm> {
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Por favor, ingrese el nombre del producto';
+                } else if (value.length < 3) {
+                  return 'El nombre del producto debe tener al menos 3 caracteres';
                 }
                 return null;
               },
@@ -151,6 +153,7 @@ class _NewProductFormState extends State<NewProductForm> {
                   child: Text('Cancelar'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
+                    foregroundColor: Colors.black, // Cambia el color del texto a negro para que sea visible
                   ),
                 ),
               ],
